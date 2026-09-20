@@ -1,0 +1,8 @@
+.venv_tf/
+.vscode/
+__pycache__/
+*.pyc
+.env
+
+models/
+*.keras
