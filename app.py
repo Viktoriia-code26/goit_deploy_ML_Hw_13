@@ -47,12 +47,12 @@ st.write(
 # Load models
 # ===============================
 @st.cache_resource
-def load_cnn_model():
+def load_models():
     cnn_model= load_model("models/cnn_model.keras")
     vgg16_model = load_model("models/vgg16_model.keras")
     return cnn_model, vgg16_model
 
-cnn_model, vgg16_model = load_cnn_model()
+cnn_model, vgg16_model = load_models()
 
 # =================================
 # Model selection
@@ -87,6 +87,7 @@ with col1:
     ax1.set_title('Training and Validation Accuracy over Epochs')
     ax1.legend()
     st.pyplot(fig1)
+    plt.close(fig1)
 
 # Loss
 with col2:
@@ -99,6 +100,7 @@ with col2:
     ax2.set_title('Training and Validation Loss over Epochs')
     ax2.legend()
     st.pyplot(fig2)
+    plt.close(fig2)
 
 # =================================
 # Image upload
@@ -134,15 +136,15 @@ if upload_file is not None:
     if channels == 1:
         # grayscale
         img = image.convert("L")
-        img = img.resize((width, height))
-        img_array = np.array(img).astype('float32') / 255.0
-        img_array = np.expand_dims(img_array, axis=-1)
     else:
         # RGB
         img = image.convert("RGB")
-        img = img.resize((width, height))
-        img_array = np.array(img).astype('float32') / 255.0
-        img_array = np.expand_dims(img_array, axis=0)
+
+    img = img.resize((width, height))
+    img_array = np.asarray(img, dtype=np.float32) / 255.0
+
+    if channels == 1:
+        img_array = np.expand_dims(img_array, axis=-1)
 
     # add batch dimension
     img_array = np.expand_dims(img_array, axis=0)
@@ -169,12 +171,12 @@ if upload_file is not None:
         # ============================
 
         st.success(
-            f"Передбачений клас: {predicted_class_name} з ймовірністю {confidence:.2f}"
+            f"Передбачений клас: {predicted_class_name}"
         )
 
         st.metric(
             label="Ймовірність",
-            value=f"{confidence:.2f}"
+            value=f"{confidence:.1%}"
         )
 
         # =============================
